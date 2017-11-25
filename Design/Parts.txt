@@ -1,0 +1,9 @@
+R1: 10K
+R2: 10K
+R3: 120
+R4: 120
+MOSFET: FS10KM-10 (N-Channel)
+Rotary encoder with a monetary switch
+Monetary switch X 2
+4 digit LED display module
+UV LED Strip
