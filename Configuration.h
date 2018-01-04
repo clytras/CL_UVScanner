@@ -9,7 +9,8 @@
 #define BEEP_FREQUENCY 5000
 #define BEEP_DURATION 100
 
-#define EEPROM_START_ADDRESS 0
+#define EEPROM_START_ADDRESS 10 // Change from 0 to 10 because 0 is overused
+#define EEPROM_WRITE_AFTER_ENCODER_SECONDS 5
 
 #define STRIP_MOSFET_PIN 8 //5
 

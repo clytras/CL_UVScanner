@@ -75,8 +75,8 @@ public:
 
 	// ATMEGA328 ROM Data
 
-	void writeROMData();
-	void readROMData();
+	void writeEEPROMData();
+	void readEEPROMData();
 
 	// LED Strip power on/off
 	void ledUVPower(bool bSet = true);
@@ -104,6 +104,7 @@ public:
 	uint32_t m_colonTimer;
 	bool m_setTimeBlinkState;
 	uint32_t m_setTimeBlinkTimer;
+	uint32_t m_eepromWriteTimer;
 
 private:
 	uint16_t m_beepFrequency;

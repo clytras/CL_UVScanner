@@ -18,7 +18,8 @@ encoder(ENCODER_PIN_A, ENCODER_PIN_B),
 m_mode(ModeSetD4),
 m_colonTimer(0),
 m_beepBeepsCount(0),
-m_colon(true)
+m_colon(true),
+m_eepromWriteTimer(0)
 {
 	Program::self = this;
 }
@@ -38,7 +39,7 @@ void Program::initialize()
 	m_stopBtn.onDoEvents(&this->run_btnDoEvents, (void*)this);
 	m_stopBtn.init(STOP_SWITCH_PIN, HIGH);
 
-	readROMData();
+	readEEPROMData();
 
 	display.setBrightness(LIGHT_BRIGHTEST); 
 	display.showNumberInt(m_secsCountdown);
@@ -136,7 +137,9 @@ void Program::runSetMode(bool forceUpdate /*= false*/)
 			padDigits[i] = '0';
 	}
 
-	if(millis() - m_setTimeBlinkTimer >= 499)
+	uint32_t currentMillis = millis();
+
+	if(currentMillis - m_setTimeBlinkTimer >= 499)
 	{
 		m_setTimeBlinkState = !m_setTimeBlinkState;
 		m_setTimeBlinkTimer = millis();
@@ -149,6 +152,12 @@ void Program::runSetMode(bool forceUpdate /*= false*/)
 	{
 		display.showString(padDigits);
 		strcpy(m_currentDigits, padDigits);
+	}
+
+	if(m_eepromWriteTimer != 0 && (currentMillis - m_eepromWriteTimer) >= (EEPROM_WRITE_AFTER_ENCODER_SECONDS * 1000))
+	{
+		writeEEPROMData();
+		m_eepromWriteTimer = 0;
 	}
 }
 
@@ -294,13 +303,13 @@ void Program::runPausedMode(bool forcePausedState /*= false*/)
 	}
 }
 
-void Program::writeROMData()
+void Program::writeEEPROMData()
 {
 	int addr = EEPROM_START_ADDRESS;
 	EEPROM.put(addr, m_secsCountdown);
 }
 
-void Program::readROMData()
+void Program::readEEPROMData()
 {
 	int addr = EEPROM_START_ADDRESS;
 	EEPROM.get(addr, m_secsCountdown);
@@ -435,6 +444,7 @@ void Program::onEncoderChange(int steps)
 
 	m_setTimeBlinkState = true;
 	m_setTimeBlinkTimer = millis();
+	m_eepromWriteTimer = millis();
 	runSetMode();
 	bool leadingZeros = true;
 	int16_t secsCountdown = m_secsCountdown;
@@ -466,8 +476,6 @@ void Program::onEncoderChange(int steps)
 		m_secsCountdown = 1;
 	else if(m_secsCountdown > 9999)
 		m_secsCountdown = secsCountdown;
-
-	writeROMData();
 }
 
 void Program::onEncoderLeft(CL_RotaryEncoder *enc, Program *prog)
